@@ -12,19 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->id()->comment('ユーザーID');
+            $table->string('name')->comment('ユーザー名');
+            $table->string('memo')->nullable()->comment('備考');
+            $table->timestamp('created_at')->useCurrent()->nullable()->comment('作成日時');
+            $table->timestamp('updated_at')->nullable()->comment('更新日時');
         });
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+        Schema::create('events', function (Blueprint $table) {
+            $table->id()->comment('イベントID');
+            $table->string('event_name')->comment('イベント名');
+            $table->dateTime('date')->comment('開催日時');
+            $table->timestamp('created_at')->useCurrent()->nullable()->comment('作成日時');
+            $table->timestamp('updated_at')->nullable()->comment('更新日時');
+        });
+
+        Schema::create('users_plans', function (Blueprint $table) {
+            $table->id();
+            $table->integer('event_id')->comment('イベントID');
+            $table->integer('user_id')->comment('ユーザーID');
+            $table->timestamp('created_at')->useCurrent()->nullable()->comment('作成日時');
+            $table->timestamp('updated_at')->nullable()->comment('更新日時');
         });
 
         Schema::create('sessions', function (Blueprint $table) {
@@ -35,6 +43,7 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
     }
 
     /**
@@ -43,7 +52,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('events');
+        Schema::dropIfExists('users_plans');
         Schema::dropIfExists('sessions');
     }
 };
